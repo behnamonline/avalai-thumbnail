@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تولیدکننده تصویر AvalAI</title>
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --input-bg: #0f172a;
+      --danger-color: #ef4444;
+      --danger-hover: #dc2626;
+      --warning-bg: #451a03;
+      --warning-text: #fde047;
+      --warning-border: #78350f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Tahoma, Vazirmatn, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+      color: var(--primary-color);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-color);
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .checkbox-group input {
+      cursor: pointer;
+      accent-color: var(--primary-color);
+      width: 16px;
+      height: 16px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .form-group {
+      flex: 1;
+    }
+
+    /* Drag and Drop Zone */
+    .drop-zone {
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+      background: var(--input-bg);
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      background-color: #1e1b4b;
+      border-color: var(--primary-color);
+    }
+
+    .drop-zone p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    /* Image Previews */
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .preview-item {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-item .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Action Buttons */
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    button.btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+      flex: 2;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: white;
+      flex: 1;
+      display: none;
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger-hover);
+    }
+
+    .timer {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* Result Section */
+    .result-section {
+      margin-top: 30px;
+      text-align: center;
+      display: none;
+    }
+
+    .cost-display {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #10b981;
+      margin-top: 8px;
+      margin-bottom: 16px;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      margin-bottom: 15px;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-download {
+      background-color: #10b981;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-download:hover {
+      background-color: #059669;
+    }
+
+    .test-mode-badge {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      border: 1px solid var(--warning-border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    @media (max-width: 600px) {
+      .row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>ساخت تصویر با AvalAI</h1>
+    <div style="text-align: center;">
+      <span class="test-mode-badge">⚠️ حالت تست فعال است (درخواست واقعی ارسال نمی‌شود)</span>
+    </div>
+
+    <!-- API Key -->
+    <div class="form-group">
+      <label for="apiKey">کلید API (AVALAI_KEY):</label>
+      <input type="text" id="apiKey" placeholder="aa-xxxxxxxxxxxxxxxxxxxxxxxx">
+      <label class="checkbox-group">
+        <input type="checkbox" id="saveKeyCheck">
+        ذخیره کلید API در مرورگر (Local Storage)
+      </label>
+    </div>
+
+    <!-- Model & Size -->
+    <div class="row">
+      <div class="form-group">
+        <label for="model">مدل:</label>
+        <select id="model">
+          <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image</option>
+          <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="size">ابعاد تصویر:</label>
+        <select id="size">
+          <option value="1280x720">1280x720 (تامبنیل یوتوب)</option>
+          <option value="1080x1920">1080x1920 (ریلز اینستا)</option>
+          <option value="1024x1024">1024x1024 (مربعی)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Prompt -->
+    <div class="form-group">
+      <label for="prompt">پرامپت (توضیحات تصویر):</label>
+      <textarea id="prompt" rows="3"
+        placeholder="با این دو تصویر یک تامبنیل برای کانال یوتوب با موضوع زندگی با گربه ها بساز"></textarea>
+    </div>
+
+    <!-- Image Upload Area -->
+    <div class="form-group">
+      <label>تصاویر ورودی:</label>
+      <div class="drop-zone" id="dropZone">
+        <p>تصاویر را به اینجا بکشید یا برای انتخاب رهایش کنید</p>
+        <input type="file" id="fileInput" multiple accept="image/*">
+      </div>
+      <div class="preview-container" id="previewContainer"></div>
+    </div>
+
+    <!-- Actions & Timer -->
+    <div class="actions">
+      <button class="btn btn-primary" id="startBtn">شروع ساخت تصویر</button>
+      <button class="btn btn-danger" id="cancelBtn">لغو</button>
+      <div class="timer" id="timer">00:00</div>
+    </div>
+
+    <!-- Result Canvas -->
+    <div class="result-section" id="resultSection">
+      <h3>تصویر تولید شده:</h3>
+      <div class="cost-display" id="costDisplay"></div>
+      <canvas id="outputCanvas"></canvas>
+      <br>
+      <button class="btn btn-download" id="downloadBtn">دانلود تصویر</button>
+    </div>
+  </div>
+
+  <script>
+    const USE_FAKE_RESPONSE = false;
+
+    let uploadedFiles = [];
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let currentAbortController = null;
+
+    const fake_response = {
+      "id": "_4Okar_iBNW7vdIPkL2JoQQ",
+      "created": 1789166590,
+      "model": "gemini-3.1-flash-lite-image",
+      "object": "chat.completion",
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "images": [
+              {
+                "image_url": {
+                  "url": "data:image/png;base64,iVBORw0KGgoAAAANSOBAAABJREFUeJzs3EENACAQA7C9g3+mP1QBC2S0CqA557331599A4BfM3InI3cycidjNyJ2M3InIzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3InYzcydjNyJ2M3Ivh8f5Y8AedvKogAAAAASUVORK5CYII="
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "estimated_cost": {
+        "unit": "0.0345787500",
+        "irt": 8165.77,
+        "exchange_rate": 236150
+      }
+    };
+
+    // عناصر DOM
+    const apiKeyInput = document.getElementById('apiKey');
+    const saveKeyCheck = document.getElementById('saveKeyCheck');
+    const modelSelect = document.getElementById('model');
+    const sizeSelect = document.getElementById('size');
+    const promptInput = document.getElementById('prompt');
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const startBtn = document.getElementById('startBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const timerDisplay = document.getElementById('timer');
+    const resultSection = document.getElementById('resultSection');
+    const costDisplay = document.getElementById('costDisplay');
+    const canvas = document.getElementById('outputCanvas');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // لود کردن تنظیمات از LocalStorage
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('saved_model')) {
+        modelSelect.value = localStorage.getItem('saved_model');
+      }
+      if (localStorage.getItem('saved_size')) {
+        sizeSelect.value = localStorage.getItem('saved_size');
+      }
+      if (localStorage.getItem('saved_api_key')) {
+        apiKeyInput.value = localStorage.getItem('saved_api_key');
+        saveKeyCheck.checked = true;
+      }
+    });
+
+    modelSelect.addEventListener('change', () => {
+      localStorage.setItem('saved_model', modelSelect.value);
+    });
+
+    sizeSelect.addEventListener('change', () => {
+      localStorage.setItem('saved_size', sizeSelect.value);
+    });
+
+    saveKeyCheck.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        const confirmed = confirm("⚠️ هشدار امنیتی:\nکلید API شما به‌صورت متنی خام در مرورگر (LocalStorage) ذخیره می‌شود.\nاگر شخص دیگری به این رایانه یا مرورگر دسترسی داشته باشد، می‌تواند کلید شما را ببیند و استفاده کند.\n\nآیا از ذخیره آن مطمئن هستید؟");
+        if (confirmed) {
+          if (apiKeyInput.value.trim()) {
+            localStorage.setItem('saved_api_key', apiKeyInput.value.trim());
+          }
+        } else {
+          e.target.checked = false;
+        }
+      } else {
+        localStorage.removeItem('saved_api_key');
+      }
+    });
+
+    apiKeyInput.addEventListener('input', () => {
+      if (saveKeyCheck.checked) {
+        localStorage.setItem('saved_api_key', apiKeyInput.value.trim());
+      }
+    });
+
+    function formatToPersianCurrency(amount) {
+      if (amount === undefined || amount === null) return '';
+      const roundedAmount = Math.round(amount);
+      const formattedNumber = roundedAmount.toLocaleString('en-US');
+      const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      const persianFormatted = formattedNumber.replace(/[0-9]/g, (w) => persianDigits[parseInt(w)]);
+      return `${persianFormatted} تومان شد`;
+    }
+
+    // Drag & Drop
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    ['dragleave', 'dragend'].forEach(type => {
+      dropZone.addEventListener(type, () => dropZone.classList.remove('dragover'));
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        handleFiles(e.dataTransfer.files);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const fileObj = {
+            id: Date.now() + Math.random(),
+            file: file,
+            base64: e.target.result
+          };
+          uploadedFiles.push(fileObj);
+          renderPreviews();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderPreviews() {
+      previewContainer.innerHTML = '';
+      uploadedFiles.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'preview-item';
+        div.innerHTML = `
+                <img src="${item.base64}" alt="preview">
+                <button class="remove-btn" onclick="removeImage(${item.id})">&times;</button>
+            `;
+        previewContainer.appendChild(div);
+      });
+    }
+
+    window.removeImage = function (id) {
+      uploadedFiles = uploadedFiles.filter(item => item.id !== id);
+      renderPreviews();
+    };
+
+    // تایمر
+    function startTimer() {
+      secondsElapsed = 0;
+      timerDisplay.textContent = '00:00';
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        const secs = String(secondsElapsed % 60).padStart(2, '0');
+        timerDisplay.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    // ارسال درخواست
+    startBtn.addEventListener('click', async () => {
+      const apiKey = apiKeyInput.value.trim();
+      const userPrompt = promptInput.value.trim();
+      const model = modelSelect.value;
+      const size = sizeSelect.value;
+
+      if (!USE_FAKE_RESPONSE && !apiKey) {
+        alert('لطفا API Key را وارد کنید.');
+        return;
+      }
+
+      if (!userPrompt) {
+        alert('لطفا پرامپت را وارد کنید.');
+        return;
+      }
+
+      // استخراج نسبت ابعاد برای ارسال اختصاصی به مدل‌های جمینای
+      let aspectRatio = "16:9";
+      if (size === "1024x1024") aspectRatio = "1:1";
+      if (size === "720x1280") aspectRatio = "9:16";
+
+      // ساخت پرامپت مخفی جهت تاکید بر ابعاد تصویر
+      const fullPrompt = `${userPrompt}\n\n[System Request: Generate the output image with an aspect ratio of ${aspectRatio} and resolution of ${size} pixels]`;
+
+      startBtn.disabled = true;
+      startBtn.style.opacity = '0.5';
+      cancelBtn.style.display = 'inline-block';
+      resultSection.style.display = 'none';
+      startTimer();
+
+      const messageContent = [{ type: "text", text: fullPrompt }];
+      uploadedFiles.forEach(item => {
+        messageContent.push({
+          type: "image_url",
+          image_url: { url: item.base64 }
+        });
+      });
+
+      const payload = {
+        model: model,
+        size: size,
+        messages: [{ role: "user", content: messageContent }]
+      };
+
+      currentAbortController = new AbortController();
+
+      try {
+        let data;
+        if (USE_FAKE_RESPONSE) {
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(resolve, 3000);
+            currentAbortController.signal.addEventListener('abort', () => {
+              clearTimeout(timeout);
+              reject(new DOMException('Aborted', 'AbortError'));
+            });
+          });
+          data = fake_response;
+        } else {
+          const response = await fetch('https://api.avalai.ir/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(payload),
+            signal: currentAbortController.signal
+          });
+
+          if (!response.ok) {
+            throw new Error(`خطای سرور: ${response.status}`);
+          }
+          data = await response.json();
+        }
+
+        if (data.estimated_cost && data.estimated_cost.irt) {
+          costDisplay.textContent = formatToPersianCurrency(data.estimated_cost.irt);
+        } else {
+          costDisplay.textContent = '';
+        }
+
+        const imageUrl = data.choices[0]?.message?.images[0]?.image_url?.url;
+        if (imageUrl) {
+          renderImageToCanvas(imageUrl);
+        } else {
+          alert('تصویری در پاسخ یافت نشد.');
+        }
+
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          alert('خطا در برقراری ارتباط: ' + error.message);
+        }
+      } finally {
+        resetUI();
+      }
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      if (currentAbortController) {
+        currentAbortController.abort();
+      }
+      resetUI();
+    });
+
+    function resetUI() {
+      stopTimer();
+      startBtn.disabled = false;
+      startBtn.style.opacity = '1';
+      cancelBtn.style.display = 'none';
+    }
+
+    function renderImageToCanvas(base64Url) {
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        resultSection.style.display = 'block';
+      };
+      img.src = base64Url;
+    }
+
+    downloadBtn.addEventListener('click', () => {
+      const imageURI = canvas.toDataURL('image/jpeg');
+      const link = document.createElement('a');
+      link.download = 'generated-thumbnail.jpg';
+      link.href = imageURI;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+
+</body>
+
+</html>
